@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThamraTech | المقالات</title>
+    <link rel="icon" href="https://blogger.googleusercontent.com/img/a/AVvXsEjzBCrRo0kdSbbCDAtDiWQzLmybqE3mHCYvRapwVSJLBkY5RFE8nSeSxcUid8rqrh7wVc4BcjqxNmvbZqAqlWPuMHQsUi4hhPR7uxCSJqlE7O0QPYWunbPVarphgWYN2PbYQUlvutuFbHXYQ5YiQP1KWGUa9BAaeQuaSJBQulqQvpuL2NprLNhZClCTf0v0">
+    <!-- تضمين مكتبة Tailwind CSS من CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تضمين مكتبة Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- تضمين خط Cairo من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* إضافة خط عربي احترافي */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+        /* تصميم زر القائمة المتجاوب */
+        .hamburger-icon {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 2rem;
+            height: 2rem;
+            z-index: 60; /* للتأكد من ظهوره فوق القائمة */
+        }
+        .line {
+            width: 2rem;
+            height: 0.25rem;
+            background-color: #16a34a;
+            border-radius: 10px;
+            transition: all 0.3s linear;
+            transform-origin: 1px;
+        }
+        .open .line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .open .line:nth-child(2) {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        .open .line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        /* تصميم شريط التمرير */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* تصميم Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        .toast {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(100%);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0.5s;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        /* الرسوم المتحركة */
+        @keyframes fadeInRight {
+            0% { opacity: 0; transform: translateX(-50px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .animate-fade-in-right {
+            animation: fadeInRight 0.8s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="font-cairo">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- شريط التنقل (Navbar) -->
+    <header class="bg-white sticky top-0 z-50 shadow-md p-4">
+        <nav class="container mx-auto flex justify-between items-center">
+            <!-- الشعار -->
+            <a href="#" class="text-2xl font-bold text-green-700">ThamraTech</a>
+            
+            <!-- قائمة التنقل للكمبيوتر -->
+            <ul class="hidden md:flex space-x-8 space-x-reverse text-lg">
+                <li><a href="https://thamra-tech.github.io/h/" class="text-gray-600 hover:text-green-600 transition-colors">الرئيسية</a></li>
+                <li><a href="#articles" class="text-gray-600 hover:text-green-600 transition-colors">المقالات</a></li>
+                <li><a href="#benefits" class="text-gray-600 hover:text-green-600 transition-colors">المزايا</a></li>
+                <li><a href="#contact" class="text-gray-600 hover:text-green-600 transition-colors">تواصل معنا</a></li>
+            </ul>
+
+            <!-- زر "انضم إلينا" -->
+             <a href="https://thamra-tech.github.io/join-Us/">
+                 <button id="join-now-btn" class="hidden md:inline-flex items-center px-4 py-2 border border-transparent text-lg font-medium rounded-xl shadow-sm text-white bg-green-600 hover:bg-green-700 transition-colors">
+                     انضم الآن
+                    </button>
+                </a>
+            
+            <!-- زر القائمة المتجاوبة (Hamburger) -->
+            <div id="menu-btn" class="md:hidden">
+                <div class="hamburger-icon">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- القائمة المتجاوبة (Mobile Menu) -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 transition-all duration-300">
+            <ul class="flex flex-col items-center space-y-4 text-lg">
+                <li><a href="https://thamra-tech.github.io/h/" class="text-gray-600 hover:text-green-600 transition-colors block py-2">الرئيسية</a></li>
+                <li><a href="#articles" class="text-gray-600 hover:text-green-600 transition-colors block py-2">المقالات</a></li>
+                <li><a href="#benefits" class="text-gray-600 hover:text-green-600 transition-colors block py-2">المزايا</a></li>
+                <li><a href="#contact" class="text-gray-600 hover:text-green-600 transition-colors block py-2">تواصل معنا</a></li>
+                <li>
+             <a href="https://thamra-tech.github.io/join-Us/">
+                 <button id="join-now-mobile-btn" class="inline-flex items-center px-4 py-2 text-lg font-medium rounded-xl shadow-sm text-white bg-green-600 hover:bg-green-700 transition-colors">انضم الآن</button>
+                </li>
+            </a>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- قسم المقدمة (Hero Section) -->
+        <section id="hero" class="bg-gradient-to-r from-green-500 to-green-700 text-center py-20 md:py-40 text-white">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 animate-fade-in-up" style="animation-delay: 0.1s;">مقالات زراعية متخصصة</h1>
+                <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8 animate-fade-in-up" style="animation-delay: 0.3s;">
+                    اكتشف مكتبة واسعة من المعرفة الزراعية، لتنمية خبراتك وتحقيق أفضل إنتاج.
+                </p>
+                <button id="discover-articles-btn" class="bg-white text-green-700 font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-gray-100 transition-colors transform hover:scale-105 animate-fade-in-up" style="animation-delay: 0.5s;">
+                    اكتشف المقالات
+                </button>
+            </div>
+        </section>
+
+        <!-- قسم أنواع المقالات (Articles Section) -->
+        <section id="articles" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-green-800">أنواع مقالاتنا</h2>
+                <p class="text-gray-600 text-lg mb-12 max-w-2xl mx-auto">
+                    نغطي جميع جوانب الزراعة لنوفر لك المعلومة الكاملة والموثوقة.
+                </p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- كارت مقالات النباتات -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 0.1s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-leaf text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">النباتات</h3>
+                        <p class="text-gray-600">تعرف على أنواع النباتات المختلفة وكيفية العناية بها.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                    <!-- كارت مقالات الأمراض -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 0.3s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-virus text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">الأمراض</h3>
+                        <p class="text-gray-600">اكتشف أسباب الأمراض النباتية وطرق الوقاية والعلاج.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                    <!-- كارت مقالات الآفات -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 0.5s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-bug text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">الآفات</h3>
+                        <p class="text-gray-600">تعرف على أخطر الآفات الزراعية وكيفية مكافحتها بفعالية.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                    <!-- كارت مقالات المبيدات -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 0.7s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-spray-can text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">المبيدات</h3>
+                        <p class="text-gray-600">دليلك الشامل لاستخدام المبيدات بأمان وفعالية.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                    <!-- كارت مقالات التغذية والتسميد -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 0.9s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-vial text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">التغذية والتسميد</h3>
+                        <p class="text-gray-600">أسرار التغذية الصحيحة للنباتات للحصول على إنتاج وفير.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                     <!-- كارت مقالات الاستشارة -->
+                    <div class="card bg-white p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 transform border border-green-100 animate-fade-in-right" style="animation-delay: 1.1s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-comments text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold mb-2 text-green-800">استشارة</h3>
+                        <p class="text-gray-600">طرح استفساراتك والحصول على استشارات من الخبراء الزراعيين.</p>
+                        <button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                            اقرأ المزيد
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم المزايا (Benefits Section) -->
+        <section id="benefits" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-green-800">لماذا تقرأ مقالاتنا؟</h2>
+                <p class="text-gray-600 text-lg mb-12 max-w-2xl mx-auto">
+                    نقدم لك معلومات موثوقة ومفيدة لتطوير مهاراتك الزراعية.
+                </p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- كارت الفائدة 1 -->
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 animate-fade-in-up" style="animation-delay: 0.1s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-lightbulb text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-green-800">معرفة شاملة</h3>
+                        <p class="text-gray-600 text-sm">اكتسب معرفة عميقة في مختلف مجالات الزراعة من مصادر موثوقة.</p>
+                    </div>
+                    <!-- كارت الفائدة 2 -->
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-chart-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-green-800">زيادة الإنتاج</h3>
+                        <p class="text-gray-600 text-sm">تطبيق النصائح والإرشادات الصحيحة لزيادة إنتاجك الزراعي.</p>
+                    </div>
+                    <!-- كارت الفائدة 3 -->
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 animate-fade-in-up" style="animation-delay: 0.5s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-shield-halved text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-green-800">حماية محاصيلك</h3>
+                        <p class="text-gray-600 text-sm">تعلم كيفية حماية نباتاتك من الأمراض والآفات بأساليب فعالة.</p>
+                    </div>
+                    <!-- كارت الفائدة 4 -->
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 animate-fade-in-up" style="animation-delay: 0.7s;">
+                        <div class="bg-green-500 text-white rounded-full p-3 w-fit mb-4 mx-auto">
+                            <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-green-800">تطوير مهاراتك</h3>
+                        <p class="text-gray-600 text-sm">ابقى على اطلاع بأحدث التقنيات والممارسات الزراعية.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم تواصل معنا (Contact Us Section) -->
+
+    </main>
+
+    <!-- تذييل الصفحة (Footer) -->
+    <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- قسم الشعار والوصف -->
+            <div class="mb-6 md:mb-0 text-center md:text-right">
+                <div class="flex justify-center md:justify-start mb-4">
+                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhWHpPFdGDJNmAhr8cuWAy_PCRYwv0puy9jpemeKag8FTOOdlfXOw_AFbpo1S9HYu-zQuYeSW3twIFRtLR_aCHryUZXpbW9xVFWULftjJp6u08s52o5rQm52vYcxGFSk3eujBicYgpV3QyY2XvkAxAFpzi5ur5R4laNUW4zMTHCsB401L17L_a39pBq4DE_" alt="Thamra-Tech" class="w-[80px]">
+                </div>
+                <h3 class="text-xl font-bold mb-2">ThamraTech</h3>
+                <p class="text-gray-300 text-sm max-w-sm mx-auto md:mx-0">
+                    منصة متكاملة لتقديم الحلول والاستشارات الزراعية المتطورة، تهدف إلى تمكين المزارعين والمهندسين.
+                </p>
+            </div>
+
+            <!-- قسم الروابط السريعة -->
+            <div class="text-center md:text-right">
+                <h4 class="text-xl font-bold mb-4">روابط سريعة</h4>
+                <ul class="space-y-2">
+                    <li><a href="#hero" class="text-gray-300 hover:text-white transition-colors">الرئيسية</a></li>
+                    <li><a href="#articles" class="text-gray-300 hover:text-white transition-colors">المقالات</a></li>
+                    <li><a href="#benefits" class="text-gray-300 hover:text-white transition-colors">المزايا</a></li>
+                    <li><a href="#contact" class="text-gray-300 hover:text-white transition-colors">تواصل معنا</a></li>
+                </ul>
+            </div>
+
+            <!-- قسم السوشيال ميديا -->
+            <div class="text-center md:text-right">
+                <h4 class="text-xl font-bold mb-4">تابعنا على</h4>
+                <div class="flex justify-center md:justify-end space-x-4 space-x-reverse">
+                    <a target="_blank " href="https://www.facebook.com/profile.php?id=61579471070182&mibextid=ZbWKwL" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-brands fa-facebook-f text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-brands fa-x-twitter text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-brands fa-instagram text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fa-brands fa-linkedin-in text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="container mx-auto px-4 mt-8 text-center border-t border-green-700 pt-6">
+            <p class="text-gray-400 text-sm">&copy; 2024 ThamraTech. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script>
+        // دالة لتسهيل اختيار العناصر من DOM
+        const $ = selector => document.querySelector(selector);
+        const $$ = selector => document.querySelectorAll(selector);
+
+        // JavaScript لتشغيل القائمة المتجاوبة
+        const menuBtn = $('#menu-btn');
+        const mobileMenu = $('#mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuBtn.classList.toggle('open');
+        });
+
+        // JavaScript لتشغيل العداد عند التمرير إلى قسم الإنجازات
+        const articlesSection = $('#articles');
+        const benefitsSection = $('#benefits');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const sectionsObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // تشغيل الرسوم المتحركة للعناصر داخل القسم المرئي
+                    entry.target.querySelectorAll('.animate-fade-in-up, .animate-fade-in-right').forEach(element => {
+                        element.style.opacity = '1';
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        if (articlesSection) sectionsObserver.observe(articlesSection);
+        if (benefitsSection) sectionsObserver.observe(benefitsSection);
+
+        // JavaScript لنموذج التواصل و رسائل التنبيه (Toast)
+        const discoverArticlesBtn = $('#discover-articles-btn');
+        const joinNowBtn = $('#join-now-btn');
+        const joinNowMobileBtn = $('#join-now-mobile-btn');
+        const contactForm = $('#contact-form');
+        const toastContainer = $('#toast-container');
+
+        const showToast = (title, message, type) => {
+            const toast = document.createElement('div');
+            toast.className = 'toast p-4 rounded-xl shadow-lg border border-opacity-50 flex items-start';
+            
+            let bgColor, borderColor, textColor, iconHtml;
+            if (type === 'success') {
+                bgColor = 'bg-green-100';
+                borderColor = 'border-green-500';
+                textColor = 'text-green-800';
+                iconHtml = '<i class="fa-solid fa-circle-check text-2xl mt-1"></i>';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-100';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-800';
+                iconHtml = '<i class="fa-solid fa-circle-xmark text-2xl mt-1"></i>';
+            } else if (type === 'warning') {
+                bgColor = 'bg-yellow-100';
+                borderColor = 'border-yellow-500';
+                textColor = 'text-yellow-800';
+                iconHtml = '<i class="fa-solid fa-triangle-exclamation text-2xl mt-1"></i>';
+            }
+
+            toast.innerHTML = `
+                <div class="${bgColor} ${borderColor} ${textColor} p-4 rounded-xl shadow-lg flex items-start">
+                    <div class="w-8 h-8 ml-3 flex-shrink-0">${iconHtml}</div>
+                    <div>
+                        <h3 class="font-bold text-lg">${title}</h3>
+                        <p class="text-sm">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10); // A small delay to trigger the transition
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500); // Wait for the transition to finish before removing
+            }, 3000);
+        };
+
+        discoverArticlesBtn.addEventListener('click', () => {
+             // عند الضغط على الزر، قم بالتمرير إلى قسم المقالات
+             document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
+             showToast('اكتشف المقالات', 'تم نقلك إلى قسم المقالات.', 'success');
+        });
+        joinNowBtn.addEventListener('click', () => {
+             showToast('صفحة الانضمام', 'تم تحويلك إلى صفحة التسجيل.', 'success');
+        });
+        joinNowMobileBtn.addEventListener('click', () => {
+             showToast('صفحة الانضمام', 'تم تحويلك إلى صفحة التسجيل.', 'success');
+        });
+
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = $('#name').value.trim();
+            const email = $('#email').value.trim();
+            const message = $('#message').value.trim();
+
+            if (!name || !email || !message) {
+                showToast('خطأ في الإرسال', 'يرجى ملء جميع الحقول المطلوبة.', 'warning');
+                return;
+            }
+
+            if (name.length < 3) {
+                 showToast('خطأ في الاسم', 'يجب أن يحتوي الاسم على 3 أحرف على الأقل.', 'warning');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('خطأ في الإرسال', 'يرجى إدخال بريد إلكتروني صحيح.', 'error');
+                return;
+            }
+
+            // محاكاة إرسال النموذج بنجاح
+            console.log('Form Submitted:', { name, email, message });
+
+            showToast('تم الإرسال بنجاح', 'سنقوم بالتواصل معك قريباً.', 'success');
+
+            contactForm.reset();
+        });
+    </script>
+</body>
+</html>
